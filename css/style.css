@@ -1,0 +1,18 @@
+@font-face {
+    font-family: 'stefanie';
+    src: url('/fonts/StefanieDots.ttf');
+}
+
+html, body {
+    font-family: "stefanie";
+    color: #fff;
+    font-size:  20;
+    background: #000;
+}
+
+#canvas {
+//    width: 100%;
+//    height: auto;
+    border: #fff solid 2px;
+    background: url(/images/bg.png);
+}

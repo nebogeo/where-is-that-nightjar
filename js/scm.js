@@ -204,6 +204,7 @@ zc.comp_lambda = function(args) {
     }
 
     return "function ("+zc.car(args).join()+")\n"+
+        // adding semicolon here
         "{"+zc.list_map(zc.comp,eexpr).join(";\n")+
         "\n"+lastc+"\n}\n";
 };
@@ -267,6 +268,7 @@ zc.core_forms = function(fn, args) {
     if (fn == "let") if (zc.check(fn,args,2,-1)) return zc.comp_let(args);
 
     if (fn == "define") {
+        // adding semicolon here
         if (zc.check(fn,args,2,-1)) return "var "+zc.car(args)+" = "+zc.comp(zc.cdr(args))+";";
     }
 
@@ -411,6 +413,10 @@ zc.core_forms = function(fn, args) {
             // remove the quotes to insert the literal string
             return v.substring(1,v.length-1);
         }
+    }
+
+    if (fn == "new") {
+        return "new "+zc.car(args)+"( "+zc.comp(zc.cadr(args))+")";
     }
 
     return false;

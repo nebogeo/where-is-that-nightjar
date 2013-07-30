@@ -60,11 +60,12 @@
 
 (define list-equal?
   (lambda (a b)
-    (define _ (lambda (a b)
-                (cond
-                 ((null? a) #t)
-                 ((not (eq? (car a) (car b))) #f)
-                 (else (_ (cdr a) (cdr b))))))
+    (define _
+      (lambda (a b)
+        (cond
+         ((null? a) #t)
+         ((not (eq? (car a) (car b))) #f)
+         (else (_ (cdr a) (cdr b))))))
     (if (eq? (length a) (length b))
         (_ a b) #f)))
 
@@ -84,7 +85,6 @@
     (when (not (null? l))
           (console.log (car l))
           (print-list (cdr l)))))
-
 
 (define factorial
   (lambda (n)

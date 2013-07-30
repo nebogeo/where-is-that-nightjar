@@ -16,9 +16,9 @@
 
 (define nightjar-examples
   (list
+   (nightjar-example "N001" 80 (list -150 0))
    (nightjar-example "N003" 160 (list -50 30))
    (nightjar-example "N002" 120 (list -150 30))
-   (nightjar-example "N001" 80 (list -150 0))
    ))
 
 (define safe-x 0.2)
@@ -56,13 +56,9 @@
        (game-time c) d))
     (game-modify-data
      (lambda (d)
-       (nightjar-modify-images
-        nightjar-examples d))
-     (game-modify-data
-      (lambda (d)
-        (nightjar-modify-image-pos
-         (generate-image-pos) d))
-      c)))))
+       (nightjar-modify-image-pos
+        (generate-image-pos) d))
+     c))))
 
 (define (nightjar-intro c)
   (game-modify-data
@@ -80,13 +76,14 @@
        default-button-y
        #t
        (lambda (c)
+         (play-sound "sound/button.wav")
          (nightjar-setup c))))
      c))))
 
 (define (nightjar-setup c)
   (game-modify-render
    (lambda (ctx)
-     (centre-text ctx "This is an experiment" 240))
+     (centre-text ctx "experiment" 240))
    (game-modify-buttons
     (list
 
@@ -96,18 +93,26 @@
       default-button-y
       #t
       (lambda (c)
-        (nightjar-new-game c)))
+        (play-sound "sound/button.wav")
+        (nightjar-new-game
+         (game-modify-data
+          (lambda (d)
+            (nightjar-modify-images
+             nightjar-examples d))
+          c))))
 
      (image-button
       "No thanks"
       (- default-button-x 300)
       default-button-y
       (lambda (c)
+        (play-sound "sound/button.wav")
         (nightjar-intro c))))
     c)))
 
 (define (nightjar-game c)
   ;; todo: choose and delete
+
   (define example (car (nightjar-images (game-data c))))
 
   (game-modify-render
@@ -122,18 +127,6 @@
    (game-modify-buttons
     (list
 
-     ;; big lose button over whole screen
-     (rect-button
-      ""
-      0 0 screen-width screen-height #f
-      (lambda (c)
-        (nightjar-lose
-         (game-modify-data
-          (lambda (d)
-            (nightjar-modify-score
-             (- (game-time c) (nightjar-start-time d)) d))
-          c))))
-
      ;; circle button over nightjar
      (circle-button
       ""
@@ -145,17 +138,42 @@
 
       (nightjar-example-size example)
       (lambda (c)
+        (play-sound "sound/found.wav")
         (nightjar-win
          (game-modify-data
           (lambda (d)
             (nightjar-modify-score
              (- (game-time c) (nightjar-start-time d)) d))
           c))))
+
+     ;; big lose button over whole screen
+     (rect-button
+      ""
+      0 0 screen-width screen-height #f
+      (lambda (c)
+        (nightjar-lose
+         (game-modify-data
+          (lambda (d)
+            (play-sound "sound/notfound.wav")
+            (nightjar-modify-score
+             (- (game-time c) (nightjar-start-time d)) d))
+          c))))
+
+
      ) c)))
 
 (define (nightjar-win c)
   (game-modify-render
    (lambda (ctx)
+     (define example (car (nightjar-images (game-data c))))
+
+     (ctx.drawImage
+      (find-image (nightjar-example-file example) image-lib)
+      (- (car (nightjar-image-pos (game-data c)))
+         image-centre-x)
+      (- (cadr (nightjar-image-pos (game-data c)))
+         image-centre-y))
+
      (centre-text ctx "Nightjar found" 150)
      (centre-text
       ctx
@@ -163,21 +181,43 @@
          (/ (nightjar-score (game-data c)) 1000)
          " seconds")
       270))
+
    (game-modify-buttons
     (list
      (image-button
-      "Next Nightjar"
+      "More"
       default-button-x
       (+ default-button-y 50) #t
       (lambda (c)
-        (nightjar-new-game c)))
-     )    c)))
+        (play-sound "sound/button.wav")
+        (console.log "doing next nightjar")
+
+        ;; check end of game
+        (if (eq? (length (nightjar-images (game-data c))) 1)
+            (nightjar-intro c)
+            (nightjar-new-game
+             (game-modify-data
+              (lambda (d)
+                (nightjar-modify-images
+                 (cdr (nightjar-images d)) d))
+              c)))))
+      )    c)))
 
 (define (nightjar-lose c)
   (game-modify-render
    (lambda (ctx)
+     (define example (car (nightjar-images (game-data c))))
+
+     (ctx.drawImage
+      (find-image (nightjar-example-file example) image-lib)
+      (- (car (nightjar-image-pos (game-data c)))
+         image-centre-x)
+      (- (cadr (nightjar-image-pos (game-data c)))
+         image-centre-y))
+
+
      (let ((name (car (nightjar-images (game-data c)))))
-       (centre-text ctx "YOU LOSE" 240)))
+       (centre-text ctx "You lose" 240)))
    (game-modify-buttons
     (list
 
@@ -187,6 +227,7 @@
       (+ default-button-x 300)
       default-button-y #t
       (lambda (c)
+        (play-sound "sound/button.wav")
         (nightjar-new-game c)))
 
      ;; try again
@@ -198,6 +239,7 @@
         (nightjar-game
          (game-modify-data
           (lambda (d)
+            (play-sound "sound/button.wav")
             (nightjar-modify-start-time
              (game-time c) d))
           c))))

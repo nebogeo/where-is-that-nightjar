@@ -18,6 +18,10 @@
 (define (transform-x t) (list-ref t 0))
 (define (transform-y t) (list-ref t 1))
 
+(define (play-sound sound)
+ (let ((snd (new Audio sound)))
+    (snd.play)))
+
 (define image-lib ())
 
 (define (load-image! fn finished)
@@ -96,15 +100,15 @@
                 (button-w b) (button-h b)
                 mx my)
       (let ((fn (button-callback b)))
-        (fn c))
-      c))
+        (list #t (fn c)))
+      (list #f c)))
 
 (define (circle-button-update! b mx my c)
   (if (in-circle? (button-x b) (button-y b)
                   (button-r b) mx my)
       (let ((fn (button-callback b)))
-        (fn c))
-      c))
+        (list #t (fn c)))
+      (list #f c)))
 
 (define (button-update! b mx my c)
   (cond
@@ -149,7 +153,7 @@
    0 0)
 
   (set! ctx.fillStyle "#000")
-  (set! ctx.font "30pt stefanie")
+  (set! ctx.font "bold 30pt stefanie")
 
   (let ((m (ctx.measureText (button-name b))))
     (ctx.fillText
@@ -160,11 +164,12 @@
 
 
 (define (circle-button-render! ctx b)
-  (ctx.beginPath)
-  (ctx.arc (button-x b) (button-y b)
-           (button-r b) 0 Math.PI*2 true)
-  (ctx.closePath)
-  (ctx.stroke))
+  ;;(ctx.beginPath)
+  ;;(ctx.arc (button-x b) (button-y b)
+  ;;         (button-r b) 0 Math.PI*2 true)
+  ;;(ctx.closePath)
+  ;;(ctx.stroke)
+  0)
 
 (define (button-render! ctx b)
   (cond
@@ -180,11 +185,18 @@
 (define (button-list b)
   b)
 
-(define (buttons-update b mx my c)
+(define (button-inner-update b mx my c)
   (foldl
    (lambda (b r)
-     (button-update! b mx my r))
-   c b))
+     (if (not (car r)) ;; if event not handled
+         (button-update! b mx my (cadr r))
+         (js "r")))
+   (list #f c)
+   b))
+
+(define (buttons-update b mx my c)
+  (let ((r (button-inner-update b mx my c)))
+    (cadr r)))
 
 (define (buttons-render! ctx b)
   (for-each

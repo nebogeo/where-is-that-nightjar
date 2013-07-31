@@ -52,6 +52,29 @@
   (let ((m (ctx.measureText txt)))
     (ctx.fillText txt (- (/ screen-width 2) (/ m.width 2)) y)))
 
+(define (wrap-text ctx text x y max-width line-height)
+  (define (wrap-text-inner words line y)
+    (cond
+     ((null? words)
+      (centre-text ctx line y))
+     (else
+      (begin
+        (define test-line (+ line (car words) " "))
+        (define metrics (ctx.measureText test-line))
+        (if (> metrics.width max-width)
+            ;; todo cond returning too early...
+            (begin
+              (centre-text ctx line y)
+              (wrap-text-inner (cdr words)
+                               (+ (car words) " ")
+                               (+ y line-height)))
+            (begin
+              (console.log (car words))
+              (wrap-text-inner
+               (cdr words) test-line y)))))))
+  (wrap-text-inner (text.split " ") "" y))
+
+
 ;; ----------------------------------------
 
 (define (rect-button name x y w h jitter callback)

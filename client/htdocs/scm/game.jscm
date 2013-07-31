@@ -1,3 +1,4 @@
+;; -*- mode: scheme; -*-
 ; ------------------------------------------------
 ; nightjar specific stuff
 
@@ -31,22 +32,35 @@
 (define default-button-x (- (/ screen-width 2) 200))
 (define default-button-y (+ (/ screen-height 2) 20))
 
-(define (nightjar-data start-time player-id player-type images)
-  (list start-time player-id player-type images 0))
-
 (define (empty-nightjar-data)
-  (list 0 0 "" () 0))
+  (list 0 0 "" #f () () 0))
 
-(define (nightjar-start-time g) (list-ref g 4))
-(define (nightjar-modify-start-time v g) (list-replace g 4 v))
-(define (nightjar-player-id g) (list-ref g 5))
-(define (nightjar-modify-player-id v g) (list-replace g 5 v))
-(define (nightjar-images g) (list-ref g 6))
-(define (nightjar-modify-images v g) (list-replace g 6 v))
-(define (nightjar-image-pos g) (list-ref g 7))
-(define (nightjar-modify-image-pos v g) (list-replace g 7 v))
-(define (nightjar-score g) (list-ref g 8))
-(define (nightjar-modify-score v g) (list-replace g 8 v))
+(define (nightjar-start-time g) (list-ref g 0))
+(define (nightjar-modify-start-time v g) (list-replace g 0 v))
+(define (nightjar-player-id g) (list-ref g 1))
+(define (nightjar-modify-player-id v g) (list-replace g 1 v))
+(define (nightjar-player-type g) (list-ref g 2))
+(define (nightjar-modify-player-type v g) (list-replace g 2 v))
+(define (nightjar-played-before g) (list-ref g 3))
+(define (nightjar-modify-played-before v g) (list-replace g 3 v))
+(define (nightjar-images g) (list-ref g 4))
+(define (nightjar-modify-images v g) (list-replace g 4 v))
+(define (nightjar-image-pos g) (list-ref g 5))
+(define (nightjar-modify-image-pos v g) (list-replace g 5 v))
+(define (nightjar-score g) (list-ref g 6))
+(define (nightjar-modify-score v g) (list-replace g 6 v))
+
+(define (nightjar-heading ctx txt)
+  (set! ctx.font "normal 75pt stefanie")
+  (wrap-text ctx txt 100 100 1000 100))
+
+(define (nightjar-text ctx txt)
+  (set! ctx.font "bold 25pt stefanie")
+  (wrap-text ctx txt 100 300 1000 50))
+
+(define (nightjar-all-text ctx txt)
+  (set! ctx.font "bold 50pt stefanie")
+  (wrap-text ctx txt 100 100 1000 75))
 
 (define (nightjar-new-game c)
   (nightjar-game
@@ -66,30 +80,130 @@
      (empty-nightjar-data))
    (game-modify-render
     (lambda (ctx)
-      (centre-text ctx "Where is that" 200)
-      (centre-text ctx "nightjar" 290))
+      (nightjar-heading ctx "Where is that nightjar")
+      (nightjar-text ctx "Hunt nightjars and help us with our research"))
     (game-modify-buttons
      (list
       (image-button
-       "Start game"
+       "Start playing"
        default-button-x
        default-button-y
        #t
        (lambda (c)
          (play-sound "sound/button.wav")
-         (nightjar-setup c))))
+         (nightjar-species-screen c))))
      c))))
 
-(define (nightjar-setup c)
+(define (nightjar-species-screen c)
   (game-modify-render
    (lambda (ctx)
-     (centre-text ctx "experiment" 240))
+     (nightjar-heading ctx "What species are you")
+     (nightjar-text ctx "Choose either one"))
    (game-modify-buttons
     (list
 
      (image-button
-      "Start playing"
+      "Monkey"
       (+ default-button-x 300)
+      default-button-y
+      #t
+      (lambda (c)
+        (play-sound "sound/button.wav")
+        (nightjar-played-before-screen
+         (game-modify-data
+          (lambda (d)
+            (nightjar-modify-player-type "monkey" d))
+          c))))
+
+     (image-button
+      "Mongoose"
+      (- default-button-x 300)
+      default-button-y
+      #t
+      (lambda (c)
+        (play-sound "sound/button.wav")
+        (nightjar-played-before-screen
+         (game-modify-data
+          (lambda (d)
+            (nightjar-modify-player-type "mongoose" d))
+          c))))
+    ) c)))
+
+(define (nightjar-played-before-screen c)
+  (game-modify-render
+   (lambda (ctx)
+     (nightjar-all-text
+      ctx
+      (+ "Hello " (nightjar-player-type (game-data c))
+         " have you played this game before")))
+   (game-modify-buttons
+    (list
+
+     (image-button
+      "Yes"
+      (+ default-button-x 300)
+      default-button-y
+      #t
+      (lambda (c)
+        (play-sound "sound/button.wav")
+        (nightjar-experiment-screen
+         (game-modify-data
+          (lambda (d)
+            (nightjar-modify-played-before #t d))
+          c))))
+
+     (image-button
+      "No"
+      (- default-button-x 300)
+      default-button-y
+      #t
+      (lambda (c)
+        (play-sound "sound/button.wav")
+        (nightjar-experiment-screen
+         (game-modify-data
+          (lambda (d)
+            (nightjar-modify-played-before #f d))
+          c))))
+    ) c)))
+
+
+(define (nightjar-experiment-screen c)
+  (game-modify-render
+   (lambda (ctx)
+     (nightjar-heading ctx "This is citizen science game")
+     (nightjar-text ctx "We would like to use data from your game in future experiments - is that ok"))
+   (game-modify-buttons
+    (list
+
+     (image-button
+      "How to play"
+      (+ default-button-x 300)
+      default-button-y
+      #t
+      (lambda (c)
+        (play-sound "sound/button.wav")
+        (nightjar-explain-screen c)))
+
+     (image-button
+      "No thanks"
+      (- default-button-x 300)
+      default-button-y
+      #t
+      (lambda (c)
+        (play-sound "sound/button.wav")
+        (nightjar-intro c))))
+    c)))
+
+(define (nightjar-explain-screen c)
+  (game-modify-render
+   (lambda (ctx)
+     (nightjar-all-text ctx "Click on the nightjars in each photo and see how many you can find"))
+   (game-modify-buttons
+    (list
+
+     (image-button
+      "Go"
+      default-button-x
       default-button-y
       #t
       (lambda (c)
@@ -99,16 +213,10 @@
           (lambda (d)
             (nightjar-modify-images
              nightjar-examples d))
-          c))))
+          c)))))
 
-     (image-button
-      "No thanks"
-      (- default-button-x 300)
-      default-button-y
-      (lambda (c)
-        (play-sound "sound/button.wav")
-        (nightjar-intro c))))
     c)))
+
 
 (define (nightjar-game c)
   ;; todo: choose and delete

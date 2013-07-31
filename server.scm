@@ -31,12 +31,12 @@
 ;;(define setuid (get-ffi-obj 'setuid #f (_fun _int -> _int)))
 
 (define (pluto-response txt)
-  txt #;(response/full
+  (response/full
    200                ; code
    #"Okay"            ; message
    (current-seconds)  ; seconds
    #"text/javascript" ; mime type
-   empty              ; headers
+   '()                ; headers
    (list (string->bytes/utf-8 txt)))) ; body
 
 (define registered-requests

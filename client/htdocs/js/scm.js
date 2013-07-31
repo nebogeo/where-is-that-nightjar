@@ -520,7 +520,7 @@ function init() {
     jQuery(document).ready(function($) {
 
         // load and compile the syntax parser
-        var syntax_parse=zc.load_unparsed("scm/syntax.scm");
+        var syntax_parse=zc.load_unparsed("scm/syntax.jscm");
         try {
             //        console.log(syntax_parse);
             do_syntax=eval(syntax_parse);
@@ -530,9 +530,9 @@ function init() {
             zc.to_page("output",e.stack);
         }
 
-        var js=zc.load("scm/base.scm");
-        js+=zc.load("scm/lce.scm");
-        js+=zc.load("scm/game.scm");
+        var js=zc.load("scm/base.jscm");
+        js+=zc.load("scm/lce.jscm");
+        js+=zc.load("scm/game.jscm");
         zc.to_page("compiled",js);
 
         try {

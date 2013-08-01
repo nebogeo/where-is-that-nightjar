@@ -308,7 +308,7 @@
     (list
 
      (image-button
-      "How to play"
+      "Yes, that's fine"
       (+ default-button-x button-gap)
       default-button-y
       #t
@@ -339,7 +339,7 @@
 (define (nightjar-explain-screen c)
   (game-modify-render
    (lambda (ctx)
-     (nightjar-all-text ctx "Click on the nightjars in each photo and see how many you can find"))
+     (nightjar-all-text ctx "There is one nightjar in every photo, touch it when you see it"))
    (game-modify-buttons
     (list
 
@@ -546,7 +546,7 @@
     (game-modify-buttons
      (list
       (image-button
-       "More"
+       "Next nightjar"
        default-button-x
        (+ default-button-y 50) #t
        (lambda (c)

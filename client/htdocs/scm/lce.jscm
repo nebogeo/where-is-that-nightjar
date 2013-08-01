@@ -2,14 +2,6 @@
 ;; (C) 2013 David Griffiths
 ;; GPL Affero etc
 
-(define images
-  (list "feather1"
-        "feather2"
-        "feather3"
-        "N001"
-        "N002"
-        "N003"
-        ))
 
 (define (choose l)
   (list-ref l (random (length l))))
@@ -25,20 +17,29 @@
 
 (define image-lib ())
 
-(define (load-image! fn finished)
+(define (load-image! fn finished images)
   (let ((image (js "new Image()")))
     (set! image.onload
           (lambda ()
+            (console.log (+ "loaded " (+ "images/" fn)))
             (set! image-lib (cons (list fn image) image-lib))
+            (ctx.clearRect 0 0 screen-width screen-height)
+            (set! ctx.font "normal 75pt gnuolane")
+            (centre-text ctx "Loading..." 240)
+            (centre-text
+             ctx
+             (+ "" (Math.floor (* (/ (length image-lib)
+                                     (length images)) 100)) "%")  340)
             (when (eq? (length image-lib)
                        (length images))
                   (finished))))
-    (set! image.src (+ "images/" fn ".png"))))
+;;    (console.log (+ "loading " (+ "images/" fn)))
+    (set! image.src (+ "images/" fn))))
 
 (define (load-images! l finished)
   (for-each
    (lambda (fn)
-     (load-image! fn finished))
+     (load-image! fn finished l))
    l))
 
 (define (find-image fn l)
@@ -70,11 +71,28 @@
                                (+ (car words) " ")
                                (+ y line-height)))
             (begin
-              (console.log (car words))
               (wrap-text-inner
                (cdr words) test-line y)))))))
   (wrap-text-inner (text.split " ") "" y))
 
+(define (sprite x y image timer)
+  (list x y image timer))
+
+(define (sprite-x s) (list-ref s 0))
+(define (sprite-y s) (list-ref s 1))
+(define (sprite-modify-x s v) (list-replace s 0 v))
+(define (sprite-modify-y s v) (list-replace s 1 v))
+(define (sprite-image s) (list-ref s 2))
+(define (sprite-timer s) (list-ref s 3))
+
+(define (sprite-render ctx t s)
+  (when (< t (sprite-timer s))
+        (ctx.save)
+        (ctx.translate (sprite-x s) (sprite-y s))
+        (ctx.drawImage
+         (find-image (sprite-image s) image-lib)
+         0 0)
+        (ctx.restore)))
 
 ;; ----------------------------------------
 
@@ -83,7 +101,7 @@
             jitter callback #f))))
 
 (define (image-button name x y jitter callback)
-  (let ((image-name (choose (list "feather1" "feather2" "feather3"))))
+  (let ((image-name (choose (list "feather1.png" "feather2.png" "feather3.png"))))
     (let ((image (find-image image-name image-lib)))
       (list "image-button"
             name x y
@@ -155,6 +173,7 @@
         (ctx.translate (- 0 (/ (button-w b) 2))
                        (- 0 (/ (button-h b) 2))))
 
+  (set! ctx.strokeStyle "#fff")
   (ctx.strokeRect
    0 0 (button-w b) (button-h b))
   (ctx.fillText (button-name b) (/ (button-w b) 2) (+ 20 (/ (button-h b) 2)))
@@ -188,12 +207,12 @@
 
 
 (define (circle-button-render! ctx t b)
-  ;;(ctx.beginPath)
-  ;;(ctx.arc (button-x b) (button-y b)
-  ;;         (button-r b) 0 Math.PI*2 true)
-  ;;(ctx.closePath)
-  ;;(ctx.stroke)
-  0)
+  (ctx.beginPath)
+  (ctx.arc (button-x b) (button-y b)
+           (button-r b) 0 (* Math.PI 2) true)
+  (ctx.closePath)
+  (set! ctx.strokeStyle "#fff")
+  (ctx.stroke))
 
 (define (button-render! ctx t b)
   (cond
@@ -251,9 +270,15 @@
 (define (game-modify-buttons v g) (list-replace g 3 v))
 (define (game-data g) (list-ref g 4))
 (define (game-modify-data fn g) (list-replace g 4 (fn (game-data g))))
+(define (game-mx g) (list-ref g 5))
+(define (game-modify-mx v g) (list-replace g 5 v))
+(define (game-my g) (list-ref g 6))
+(define (game-modify-my v g) (list-replace g 6 v))
 
 (define (game-input g mx my)
-  (buttons-update (game-buttons g) mx my g))
+  (buttons-update (game-buttons g) mx my
+                  (game-modify-mx
+                   mx (game-modify-my my g))))
 
 ;; ----------------------------------------
 
@@ -309,16 +334,7 @@
 (define screen-height 768)
 (define load-time (js "new Date()"))
 
-(set! ctx.fillStyle "#000000")
-(set! ctx.strokeStyle "#000000")
-(set! ctx.font "bold 20pt Courier")
-
-(centre-text ctx "Loading..." 240)
+(set! ctx.fillStyle "#fff")
+(set! ctx.strokeStyle "#000")
 
 (console.log "done stuff")
-
-(load-images!
- images
- (lambda ()
-   (console.log "ready")
-   (start-game canvas ctx)))

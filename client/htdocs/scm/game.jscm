@@ -194,6 +194,20 @@
         (generate-image-pos) d))
      c))))
 
+(define (nightjar-new-game-images c)
+  (define start 0)
+  (when (eq? (nightjar-player-type (game-data c)) "monkey")
+        (set! start 40))
+  (play-sound "sound/button.wav")
+  (nightjar-new-game
+   (game-modify-data
+    (lambda (d)
+      (nightjar-modify-images
+       (slice nightjar-examples start 39)
+       d))
+    c)))
+
+
 (define (nightjar-intro c)
   (game-modify-data
    (lambda (d)
@@ -254,7 +268,7 @@
      (nightjar-all-text
       ctx
       (+ "Hello " (nightjar-player-type (game-data c))
-         " have you played this game before?")))
+         ", have you played this game before?")))
    (game-modify-buttons
     (list
 
@@ -265,7 +279,7 @@
       #t
       (lambda (c)
         (play-sound "sound/button.wav")
-        (nightjar-experiment-screen
+        (nightjar-new-game-images
          (game-modify-data
           (lambda (d)
             (nightjar-modify-played-before #t d))
@@ -335,17 +349,7 @@
       default-button-y
       #t
       (lambda (c)
-        (define start 0)
-        (when (eq? (nightjar-player-type (game-data c)) "monkey")
-              (set! start 40))
-        (play-sound "sound/button.wav")
-        (nightjar-new-game
-         (game-modify-data
-          (lambda (d)
-            (nightjar-modify-images
-             (slice nightjar-examples start 39)
-             d))
-          c)))))
+        (nightjar-new-game-images c))))
 
     c)))
 

@@ -3,8 +3,9 @@
 ;; GPL Affero etc
 
 (define images
-  (list "button-01"
-        "button-02"
+  (list "feather1"
+        "feather2"
+        "feather3"
         "N001"
         "N002"
         "N003"
@@ -82,7 +83,7 @@
             jitter callback #f))))
 
 (define (image-button name x y jitter callback)
-  (let ((image-name (choose (list "button-01" "button-02"))))
+  (let ((image-name (choose (list "feather1" "feather2" "feather3"))))
     (let ((image (find-image image-name image-lib)))
       (list "image-button"
             name x y
@@ -142,7 +143,7 @@
    (else
     (circle-button-update! b mx my c))))
 
-(define (rect-button-render! ctx b)
+(define (rect-button-render! ctx t b)
   (ctx.save)
   (ctx.translate (button-x b) (button-y b))
   (when (button-jitter b)
@@ -156,18 +157,18 @@
 
   (ctx.strokeRect
    0 0 (button-w b) (button-h b))
-  (ctx.fillText (button-name b) (/ (button-w b) 2) (/ (button-h b) 2))
+  (ctx.fillText (button-name b) (/ (button-w b) 2) (+ 20 (/ (button-h b) 2)))
   (ctx.restore))
 
-(define (image-button-render! ctx b)
+(define (image-button-render! ctx t b)
   (ctx.save)
   (ctx.translate (button-x b) (button-y b))
   (when (button-jitter b)
         (ctx.translate (/ (button-w b) 2)
                        (/ (button-h b) 2))
-        (ctx.rotate (* 0.1 (- (rndf) 0.5)))
-        (ctx.scale (+ 1 (* 0.2 (- (rndf) 0.5)))
-                   (+ 1 (* 0.2 (- (rndf) 0.5))))
+        (ctx.rotate (* 0.1 (Math.sin (* t 0.01))))
+        ;;(ctx.scale (+ 1 (* 0.2 (- (rndf) 0.5)))
+        ;;           (+ 1 (* 0.2 (- (rndf) 0.5))))
         (ctx.translate (- 0 (/ (button-w b) 2))
                        (- 0 (/ (button-h b) 2))))
 
@@ -175,18 +176,18 @@
    (find-image (button-image b) image-lib)
    0 0)
 
-  (set! ctx.fillStyle "#000")
-  (set! ctx.font "bold 30pt stefanie")
+  (set! ctx.fillStyle "#fff")
+  (set! ctx.font "bold 30pt gnuolane")
 
   (let ((m (ctx.measureText (button-name b))))
     (ctx.fillText
      (button-name b)
      (- (/ (button-w b) 2) (/ m.width 2))
-     (/ (button-h b) 2)))
+     (+ (/ (button-h b) 2) 5)))
   (ctx.restore))
 
 
-(define (circle-button-render! ctx b)
+(define (circle-button-render! ctx t b)
   ;;(ctx.beginPath)
   ;;(ctx.arc (button-x b) (button-y b)
   ;;         (button-r b) 0 Math.PI*2 true)
@@ -194,14 +195,14 @@
   ;;(ctx.stroke)
   0)
 
-(define (button-render! ctx b)
+(define (button-render! ctx t b)
   (cond
    ((eq? (button-type b) "rect-button")
-    (rect-button-render! ctx b))
+    (rect-button-render! ctx t b))
    ((eq? (button-type b) "image-button")
-    (image-button-render! ctx b))
+    (image-button-render! ctx t b))
    (else
-    (circle-button-render! ctx b))))
+    (circle-button-render! ctx t b))))
 
 ;; ----------------------------------------
 
@@ -221,10 +222,10 @@
   (let ((r (button-inner-update b mx my c)))
     (cadr r)))
 
-(define (buttons-render! ctx b)
+(define (buttons-render! ctx t b)
   (for-each
    (lambda (b)
-     (button-render! ctx b))
+     (button-render! ctx t b))
    b))
 
 ;; ----------------------------------------
@@ -275,7 +276,7 @@
           (set! ctx.font "75pt stefanie")
           (top-update-game t game)
           (top-render-game ctx game)
-          (buttons-render! ctx (game-buttons game)))
+          (buttons-render! ctx t (game-buttons game)))
         (requestAnimFrame top-render ctx)))
 
 (define game 0)

@@ -3,8 +3,13 @@
     src: url('/fonts/StefanieDots.ttf');
 }
 
+@font-face {
+    font-family: 'gnuolane';
+    src: url('/fonts/gnuolane.ttf');
+}
+
 html, body {
-    font-family: "stefanie";
+    font-family: 'gnuolane';
     color: #fff;
     font-size:  20;
     background: #000;

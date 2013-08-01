@@ -29,8 +29,9 @@
   (list (* screen-width (+ safe-x (* (rndf) (- 1 (* safe-x 2)))))
         (* screen-height (+ safe-y (* (rndf) (- 1 (* safe-y 2)))))))
 
-(define default-button-x (- (/ screen-width 2) 200))
+(define default-button-x (- (/ screen-width 2) 280))
 (define default-button-y (+ (/ screen-height 2) 20))
+(define button-gap 250)
 
 (define (empty-nightjar-data)
   (list 0 0 "" #f () () 0))
@@ -55,11 +56,11 @@
   (wrap-text ctx txt 100 100 1000 100))
 
 (define (nightjar-text ctx txt)
-  (set! ctx.font "bold 25pt stefanie")
+  (set! ctx.font "bold 25pt gnuolane")
   (wrap-text ctx txt 100 300 1000 50))
 
 (define (nightjar-all-text ctx txt)
-  (set! ctx.font "bold 50pt stefanie")
+  (set! ctx.font "bold 50pt gnuolane")
   (wrap-text ctx txt 100 100 1000 75))
 
 (define (nightjar-new-game c)
@@ -97,14 +98,13 @@
 (define (nightjar-species-screen c)
   (game-modify-render
    (lambda (ctx)
-     (nightjar-heading ctx "What species are you")
-     (nightjar-text ctx "Choose either one"))
+     (nightjar-all-text ctx "What species are you?"))
    (game-modify-buttons
     (list
 
      (image-button
       "Monkey"
-      (+ default-button-x 300)
+      (+ default-button-x button-gap)
       default-button-y
       #t
       (lambda (c)
@@ -117,7 +117,7 @@
 
      (image-button
       "Mongoose"
-      (- default-button-x 300)
+      (- default-button-x button-gap)
       default-button-y
       #t
       (lambda (c)
@@ -135,13 +135,13 @@
      (nightjar-all-text
       ctx
       (+ "Hello " (nightjar-player-type (game-data c))
-         " have you played this game before")))
+         " have you played this game before?")))
    (game-modify-buttons
     (list
 
      (image-button
       "Yes"
-      (+ default-button-x 300)
+      (+ default-button-x button-gap)
       default-button-y
       #t
       (lambda (c)
@@ -154,7 +154,7 @@
 
      (image-button
       "No"
-      (- default-button-x 300)
+      (- default-button-x button-gap)
       default-button-y
       #t
       (lambda (c)
@@ -170,14 +170,13 @@
 (define (nightjar-experiment-screen c)
   (game-modify-render
    (lambda (ctx)
-     (nightjar-heading ctx "This is citizen science game")
-     (nightjar-text ctx "We would like to use data from your game in future experiments - is that ok"))
+     (nightjar-all-text ctx "We would like to use data from your game in future experiments - is that ok?"))
    (game-modify-buttons
     (list
 
      (image-button
       "How to play"
-      (+ default-button-x 300)
+      (+ default-button-x button-gap)
       default-button-y
       #t
       (lambda (c)
@@ -186,7 +185,7 @@
 
      (image-button
       "No thanks"
-      (- default-button-x 300)
+      (- default-button-x button-gap)
       default-button-y
       #t
       (lambda (c)
@@ -332,7 +331,7 @@
      ;; try another
      (image-button
       "Next Nightjar"
-      (+ default-button-x 300)
+      (+ default-button-x button-gap)
       default-button-y #t
       (lambda (c)
         (play-sound "sound/button.wav")
@@ -341,7 +340,7 @@
      ;; try again
      (image-button
       "Try again"
-      (- default-button-x 300)
+      (- default-button-x button-gap)
       default-button-y #t
       (lambda (c)
         (nightjar-game

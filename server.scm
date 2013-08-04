@@ -23,12 +23,19 @@
          web-server/http/response-structs
          "server/request.ss"
          "server/logger.ss"
-         "server/json.ss")
+         "server/json.ss"
+         "server/db.ss")
+
+(require (planet jaymccarthy/sqlite:5:1/sqlite))
 
 ; a utility to change the process owner,
 ; assuming mzscheme is called by root.
 ;;(unsafe!)
 ;;(define setuid (get-ffi-obj 'setuid #f (_fun _int -> _int)))
+
+(define db-name "nightjars.db")
+(define db (open (string->path db-name)))
+(setup db)
 
 (define (pluto-response txt)
   (response/full
@@ -44,7 +51,43 @@
    (register
     (req 'ping '())
     (lambda ()
-      (pluto-response (scheme->json '("hello")))))))
+      (pluto-response (scheme->json '("hello")))))
+
+   (register
+    (req 'player '(species played_before age_range))
+    (lambda (species played-before age-range)
+      (let* ((id (insert-player db species played-before age-range)))
+        (display id)(newline)
+        (pluto-response (scheme->json (list id))))))
+
+   (register
+    (req 'click '(player_id
+                  photo_name
+                  photo_offset_x
+                  photo_offset_y
+                  time_stamp
+                  x_position
+                  y_position
+                  success))
+    (lambda (player_id
+             photo_name
+             photo_offset_x
+             photo_offset_y
+             time_stamp
+             x_position
+             y_position
+             success)
+      (let* ((id (insert-click
+                  db
+                  player_id
+                  photo_name
+                  (number->string (inexact->exact (round (string->number photo_offset_x))))
+                  (number->string (inexact->exact (round (string->number photo_offset_y))))
+                  time_stamp
+                  x_position
+                  y_position
+                  success)))
+        (pluto-response (scheme->json '())))))))
 
 (define (start request)
   (let ((values (url-query (request-uri request))))

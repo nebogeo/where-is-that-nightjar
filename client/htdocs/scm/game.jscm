@@ -227,87 +227,8 @@
        #t
        (lambda (c)
          (play-sound "sound/button.wav")
-         (nightjar-species-screen c))))
+         (nightjar-experiment-screen c))))
      c))))
-
-(define (nightjar-species-screen c)
-  (game-modify-render
-   (lambda (ctx)
-     (nightjar-all-text ctx "What species are you?"))
-   (game-modify-buttons
-    (list
-
-     (image-button
-      "Monkey"
-      (+ default-button-x button-gap)
-      default-button-y
-      #t
-      (lambda (c)
-        (play-sound "sound/button.wav")
-        (nightjar-played-before-screen
-         (game-modify-data
-          (lambda (d)
-            (nightjar-modify-player-type "monkey" d))
-          c))))
-
-     (image-button
-      "Mongoose"
-      (- default-button-x button-gap)
-      default-button-y
-      #t
-      (lambda (c)
-        (play-sound "sound/button.wav")
-        (nightjar-played-before-screen
-         (game-modify-data
-          (lambda (d)
-            (nightjar-modify-player-type "mongoose" d))
-          c))))
-    ) c)))
-
-(define (nightjar-played-before-screen c)
-  (game-modify-render
-   (lambda (ctx)
-     (nightjar-all-text
-      ctx
-      (+ "Hello " (nightjar-player-type (game-data c))
-         ", have you played this game before?")))
-   (game-modify-buttons
-    (list
-
-     (image-button
-      "Yes"
-      (+ default-button-x button-gap)
-      default-button-y
-      #t
-      (lambda (c)
-        (play-sound "sound/button.wav")
-        (nightjar-new-game-images
-         (game-modify-data
-          (lambda (d)
-            (nightjar-modify-played-before #t d))
-          c))))
-
-     (image-button
-      "No"
-      (- default-button-x button-gap)
-      default-button-y
-      #t
-      (lambda (c)
-        (play-sound "sound/button.wav")
-        (nightjar-experiment-screen
-         (game-modify-data
-          (lambda (d)
-            (nightjar-modify-played-before #f d))
-          c))))
-    ) c)))
-
-
-;;     <10,
-;;     10-15,
-;;     16-35,
-;;     36-50,
-;;     >50
-
 
 (define (nightjar-experiment-screen c)
   (game-modify-render
@@ -340,74 +261,102 @@
    (lambda (ctx)
      (nightjar-all-text ctx "What is your age?"))
    (game-modify-buttons
-    (list
-     (image-button
-      "Younger than 10"
-      default-button-x
-      (- default-button-y 250)
-      #t
-      (lambda (c)
-        (play-sound "sound/button.wav")
-        (game-modify-data
-         (lambda (d)
-           (nightjar-modify-player-age
-            1 d))
-         (nightjar-explain-screen c))))
+    (let ((age-but
+           (lambda (title id y)
+             (image-button
+              title
+              default-button-x
+              (+ default-button-y y)
+              #t
+              (lambda (c)
+                (play-sound "sound/button.wav")
+                (game-modify-data
+                 (lambda (d)
+                   (nightjar-modify-player-age
+                    id d))
+                 (nightjar-played-before-screen c)))))))
 
-     (image-button
-      "10 to 15"
-      default-button-x
-      (- default-button-y 150)
-      #t
-      (lambda (c)
-        (play-sound "sound/button.wav")
-        (game-modify-data
-         (lambda (d)
-           (nightjar-modify-player-age
-            2 d))
-         (nightjar-explain-screen c))))
-
-     (image-button
-      "16 to 35"
-      default-button-x
-      (- default-button-y 50)
-      #t
-      (lambda (c)
-        (play-sound "sound/button.wav")
-        (game-modify-data
-         (lambda (d)
-           (nightjar-modify-player-age
-            3 d))
-         (nightjar-explain-screen c))))
-
-     (image-button
-      "36 to 50"
-      default-button-x
-      (+ default-button-y 50)
-      #t
-      (lambda (c)
-        (play-sound "sound/button.wav")
-        (game-modify-data
-         (lambda (d)
-           (nightjar-modify-player-age
-            4 d))
-         (nightjar-explain-screen c))))
-
-     (image-button
-      "Older than 50"
-      default-button-x
-      (+ default-button-y 150)
-      #t
-      (lambda (c)
-        (play-sound "sound/button.wav")
-        (game-modify-data
-         (lambda (d)
-           (nightjar-modify-player-age
-            5 d))
-         (nightjar-explain-screen c))))
+      (list
+       (age-but "Younger than 10" 1 -250)
+       (age-but "10 to 15" 2 -150)
+       (age-but "16 to 35" 3 -50)
+       (age-but "36 to 50" 4 50)
+       (age-but "Older than 50" 5 150))
      )
-
     c)))
+
+
+(define (nightjar-played-before-screen c)
+  (game-modify-render
+   (lambda (ctx)
+     (nightjar-all-text
+      ctx
+      (+ "Hello " (nightjar-player-type (game-data c))
+         ", have you played this game before?")))
+   (game-modify-buttons
+    (list
+
+     (image-button
+      "Yes"
+      (+ default-button-x button-gap)
+      default-button-y
+      #t
+      (lambda (c)
+        (play-sound "sound/button.wav")
+        (nightjar-species-screen
+         (game-modify-data
+          (lambda (d)
+            (nightjar-modify-played-before #t d))
+          c))))
+
+     (image-button
+      "No"
+      (- default-button-x button-gap)
+      default-button-y
+      #t
+      (lambda (c)
+        (play-sound "sound/button.wav")
+        (nightjar-species-screen
+         (game-modify-data
+          (lambda (d)
+            (nightjar-modify-played-before #f d))
+          c))))
+    ) c)))
+
+(define (nightjar-species-screen c)
+  (game-modify-render
+   (lambda (ctx)
+     (nightjar-all-text ctx "What species are you?"))
+   (game-modify-buttons
+    (list
+
+     (image-button
+      "Monkey"
+      (+ default-button-x button-gap)
+      default-button-y
+      #t
+      (lambda (c)
+        (play-sound "sound/button.wav")
+        (nightjar-explain-screen
+         (game-modify-data
+          (lambda (d)
+            (nightjar-modify-player-type "monkey" d))
+          c))))
+
+     (image-button
+      "Mongoose"
+      (- default-button-x button-gap)
+      default-button-y
+      #t
+      (lambda (c)
+        (play-sound "sound/button.wav")
+        (nightjar-explain-screen
+         (game-modify-data
+          (lambda (d)
+            (nightjar-modify-player-type "mongoose" d))
+          c))))
+    ) c)))
+
 
 (define (get-n-items lst num)
   (if (> num 0)
@@ -630,6 +579,17 @@
                  (nightjar-modify-images
                  (cdr (nightjar-images d)) d))
                c)))))
+
+      (image-button
+       "Quit game"
+       default-button-x
+       (+ default-button-y 150) #t
+       (lambda (c)
+         (play-sound "sound/button.wav")
+
+         ;; check end of game
+         (nightjar-intro c)))
+
 
       ) c))))
 

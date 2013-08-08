@@ -137,8 +137,7 @@
       (list "rect-button" name x y w h
             jitter callback #f (rndf)))
 
-(define (image-button name x y jitter callback)
-  (let ((image-name (choose (list "feather1.png" "feather2.png" "feather3.png"))))
+(define (image-button name x y jitter image-name callback)
     (let ((image (find-image image-name image-lib)))
       (list "image-button"
             name x y
@@ -225,7 +224,7 @@
   (when (button-jitter b)
         (ctx.translate (/ (button-w b) 2)
                        (/ (button-h b) 2))
-        (ctx.rotate (* 0.1 (Math.sin (+ (* (button-offs b) 10) (* t 0.01)))))
+        (ctx.rotate (* 0.05 (Math.sin (+ (* (button-offs b) 10) (* t 0.01)))))
         ;;(ctx.scale (+ 1 (* 0.2 (- (rndf) 0.5)))
         ;;           (+ 1 (* 0.2 (- (rndf) 0.5))))
         (ctx.translate (- 0 (/ (button-w b) 2))

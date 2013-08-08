@@ -59,6 +59,9 @@
      (+ "photos/" fn))
    filenames))
 
+(define (feather)
+  (choose (list "feather1.png" "feather2.png" "feather3.png")))
+
 (define (nightjar-example file pos width height)
   (list file pos width height))
 
@@ -225,6 +228,7 @@
        default-button-x
        default-button-y
        #t
+       (feather)
        (lambda (c)
          (play-sound "sound/button.wav")
          (nightjar-experiment-screen c))))
@@ -242,6 +246,7 @@
       (+ default-button-x button-gap)
       default-button-y
       #t
+      (feather)
       (lambda (c)
         (play-sound "sound/button.wav")
         (nightjar-age-screen c)))
@@ -251,6 +256,7 @@
       (- default-button-x button-gap)
       default-button-y
       #t
+      (feather)
       (lambda (c)
         (play-sound "sound/button.wav")
         (nightjar-intro c))))
@@ -268,6 +274,7 @@
               default-button-x
               (+ default-button-y y)
               #t
+              (feather)
               (lambda (c)
                 (play-sound "sound/button.wav")
                 (game-modify-data
@@ -291,8 +298,7 @@
    (lambda (ctx)
      (nightjar-all-text
       ctx
-      (+ "Hello " (nightjar-player-type (game-data c))
-         ", have you played this game before?")))
+      (+ "Have you played this game before?")))
    (game-modify-buttons
     (list
 
@@ -301,6 +307,7 @@
       (+ default-button-x button-gap)
       default-button-y
       #t
+      (feather)
       (lambda (c)
         (play-sound "sound/button.wav")
         (nightjar-species-screen
@@ -314,6 +321,7 @@
       (- default-button-x button-gap)
       default-button-y
       #t
+      (feather)
       (lambda (c)
         (play-sound "sound/button.wav")
         (nightjar-species-screen
@@ -326,7 +334,7 @@
 (define (nightjar-species-screen c)
   (game-modify-render
    (lambda (ctx)
-     (nightjar-all-text ctx "What species are you?"))
+     (nightjar-all-text ctx "What species are you? (you can pick either one ;)"))
    (game-modify-buttons
     (list
 
@@ -335,6 +343,7 @@
       (+ default-button-x button-gap)
       default-button-y
       #t
+      (feather)
       (lambda (c)
         (play-sound "sound/button.wav")
         (nightjar-explain-screen
@@ -348,6 +357,7 @@
       (- default-button-x button-gap)
       default-button-y
       #t
+      (feather)
       (lambda (c)
         (play-sound "sound/button.wav")
         (nightjar-explain-screen
@@ -380,6 +390,7 @@
       default-button-x
       default-button-y
       #t
+      (feather)
       (lambda (c)
         (server-call-mutate
          "player"
@@ -477,11 +488,20 @@
       (if (> (- (game-time c)
                 (nightjar-start-time (game-data c)))
              (* game-time-allowed 1000))
-          (nightjar-fail c)
+          (nightjar-fail "You ran out of time" c)
           c))
 
     (game-modify-buttons
      (list
+
+      (image-button
+       "I give up"
+       (- screen-width 150)
+       (- screen-height 150)
+       #f
+       "quit.png"
+       (lambda (c)
+         (nightjar-fail "They have evolved to be hard to see..." c)))
 
       ;; button over nightjar
       (rect-button
@@ -525,10 +545,9 @@
                      "wrong.png" (+ (game-time c) 2000)) d))
           c)))
 
-
       ) c))))
 
-(define (nightjar-fail c)
+(define (nightjar-fail reason c)
   (game-modify-render
    (lambda (ctx)
      (define example (car (nightjar-images (game-data c))))
@@ -543,7 +562,7 @@
       (game-time c)
       (nightjar-sprite (game-data c)))
 
-     (nightjar-heading ctx "You ran out of time"))
+     (nightjar-heading ctx reason))
 
    (game-modify-update
     (lambda (t c) c)
@@ -554,6 +573,7 @@
        "Try again"
        (- default-button-x button-gap)
        (+ default-button-y 50) #t
+       (feather)
        (lambda (c)
          (play-sound "sound/button.wav")
          (game-modify-data
@@ -566,6 +586,7 @@
        "Skip this one"
        (+ default-button-x button-gap)
        (+ default-button-y 50) #t
+       (feather)
        (lambda (c)
          (play-sound "sound/button.wav")
          (console.log "doing next nightjar")
@@ -583,7 +604,8 @@
       (image-button
        "Quit game"
        default-button-x
-       (+ default-button-y 150) #t
+       (+ default-button-y 150) #f
+       (feather)
        (lambda (c)
          (play-sound "sound/button.wav")
 
@@ -621,6 +643,7 @@
        "Next nightjar"
        default-button-x
        (+ default-button-y 50) #t
+       (feather)
        (lambda (c)
          (play-sound "sound/button.wav")
          (console.log "doing next nightjar")
@@ -645,6 +668,7 @@
               (list "feather1.png"
                     "feather2.png"
                     "feather3.png"
+                    "quit.png"
                     "right.png"
                     "wrong.png")))
 

@@ -355,7 +355,7 @@
         (let ((t (- (js "new Date()") load-time)))
           (set! ctx.font "bold 10pt courier")
           (set! ctx.fillStyle "#fff");
-          (ctx.fillText (+ "Time is: " t) 10 750)
+;;          (ctx.fillText (+ "Time is: " t) 10 750)
           (set! ctx.font "75pt stefanie")
           (top-update-game t game)
           (top-render-game ctx game)

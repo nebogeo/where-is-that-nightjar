@@ -26,3 +26,20 @@
               x_position "', '"
               y_position "', '"
               success "')")))
+
+(define (get-player-averages db)
+  (let ((players (cdr (select db "SELECT * from player"))))
+    (filter
+     (lambda (av)
+       (not (false? av)))
+     (map
+      (lambda (player)
+        (get-player-average db (vector-ref player 0)))
+      players))))
+
+(define (get-player-average db player-id)
+  (vector-ref
+   (cadr
+    (select db (string-append
+                "SELECT avg(time_stamp) from click where player_id = "
+                (number->string player-id)))) 0))

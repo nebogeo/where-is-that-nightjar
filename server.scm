@@ -35,7 +35,10 @@
 
 (define db-name "nightjars.db")
 (define db (open (string->path db-name)))
-(setup db)
+
+(display (sort (get-player-averages db) <))(newline)
+
+;;(setup db)
 
 (define (pluto-response txt)
   (response/full

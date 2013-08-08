@@ -43,6 +43,25 @@
 (define (choose l)
   (list-ref l (random (length l))))
 
+(define (delete-n l n)
+  (if (eq? n 0)
+      (cdr l)
+      (append (list (car l)) (delete-n (cdr l) (- n 1)))))
+
+(define shuffle
+  (lambda (l)
+    (if (< (length l) 2)
+        l
+        (let ((item (random (length l))))
+          (cons (list-ref l item)
+                (shuffle (delete-n l item)))))))
+
+(define (crop l n)
+  (cond
+   ((null? l) ())
+   ((zero? n) ())
+   (else (cons (car l) (crop (cdr l) (- n 1))))))
+
 (define (transform x y r s) (list x y r s))
 
 (define (transform-x t) (list-ref t 0))
@@ -200,22 +219,22 @@
     (circle-button-update! b mx my c))))
 
 (define (rect-button-render! ctx t b)
-;  (ctx.save)
-;  (ctx.translate (button-x b) (button-y b))
-;  (when (button-jitter b)
-;        (ctx.translate (/ (button-w b) 2)
-;                       (/ (button-h b) 2))
-;        (ctx.rotate (* 0.2 (- (rndf) 0.5)))
-;        (ctx.scale (+ 1 (* 0.2 (- (rndf) 0.5)))
-;                   (+ 1 (* 0.2 (- (rndf) 0.5))))
-;        (ctx.translate (- 0 (/ (button-w b) 2))
-;                       (- 0 (/ (button-h b) 2))))
-;
- ; (set! ctx.strokeStyle "#fff")
-;  (ctx.strokeRect
-;   0 0 (button-w b) (button-h b))
-;  (ctx.fillText (button-name b) (/ (button-w b) 2) (+ 20 (/ (button-h b) 2)))
-                                        ;  (ctx.restore)
+  (ctx.save)
+  (ctx.translate (button-x b) (button-y b))
+  (when (button-jitter b)
+        (ctx.translate (/ (button-w b) 2)
+                       (/ (button-h b) 2))
+        (ctx.rotate (* 0.2 (- (rndf) 0.5)))
+        (ctx.scale (+ 1 (* 0.2 (- (rndf) 0.5)))
+                   (+ 1 (* 0.2 (- (rndf) 0.5))))
+        (ctx.translate (- 0 (/ (button-w b) 2))
+                       (- 0 (/ (button-h b) 2))))
+
+  (set! ctx.strokeStyle "#fff")
+  (ctx.strokeRect
+   0 0 (button-w b) (button-h b))
+  (ctx.fillText (button-name b) (/ (button-w b) 2) (+ 20 (/ (button-h b) 2)))
+  (ctx.restore)
   0)
 
 (define (image-button-render! ctx t b)
@@ -351,9 +370,12 @@
    "mousedown"
    (lambda (e)
      (let ((rect (canvas.getBoundingClientRect)))
-       (let ((mx (- e.clientX rect.left))
-             (my (- e.clientY rect.top)))
-         (set! game (game-input game mx my))))))
+       (let ((sx (/ rect.width screen-width))
+             (sy (/ rect.height screen-height)))
+         (let ((mx (/ (- e.clientX rect.left) sx))
+               (my (/ (- e.clientY rect.top) sy)))
+           (console.log sx sy)
+           (set! game (game-input game mx my)))))))
 
   (console.log "building game")
   ;; todo - pass in game specific func

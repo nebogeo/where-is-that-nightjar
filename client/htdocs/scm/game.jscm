@@ -146,26 +146,28 @@
 (define game-time-allowed 30)
 
 (define (empty-nightjar-data)
-  (list 0 0 "" #f 0 () () 0 (sprite 0 0 "wrong.png" 0)))
+  (list 0 0 0 "" #f 0 () () 0 (sprite 0 0 "wrong.png" 0)))
 
 (define (nightjar-start-time g) (list-ref g 0))
 (define (nightjar-modify-start-time v g) (list-replace g 0 v))
-(define (nightjar-player-id g) (list-ref g 1))
-(define (nightjar-modify-player-id v g) (list-replace g 1 v))
-(define (nightjar-player-type g) (list-ref g 2))
-(define (nightjar-modify-player-type v g) (list-replace g 2 v))
-(define (nightjar-played-before g) (list-ref g 3))
-(define (nightjar-modify-played-before v g) (list-replace g 3 v))
-(define (nightjar-player-age g) (list-ref g 4))
-(define (nightjar-modify-player-age v g) (list-replace g 4 v))
-(define (nightjar-images g) (list-ref g 5))
-(define (nightjar-modify-images v g) (list-replace g 5 v))
-(define (nightjar-image-pos g) (list-ref g 6))
-(define (nightjar-modify-image-pos v g) (list-replace g 6 v))
-(define (nightjar-score g) (list-ref g 7))
-(define (nightjar-modify-score v g) (list-replace g 7 v))
-(define (nightjar-sprite g) (list-ref g 8))
-(define (nightjar-modify-sprite v g) (list-replace g 8 v))
+(define (nightjar-photo-time g) (list-ref g 1))
+(define (nightjar-modify-photo-time v g) (list-replace g 1 v))
+(define (nightjar-player-id g) (list-ref g 2))
+(define (nightjar-modify-player-id v g) (list-replace g 2 v))
+(define (nightjar-player-type g) (list-ref g 3))
+(define (nightjar-modify-player-type v g) (list-replace g 3 v))
+(define (nightjar-played-before g) (list-ref g 4))
+(define (nightjar-modify-played-before v g) (list-replace g 4 v))
+(define (nightjar-player-age g) (list-ref g 5))
+(define (nightjar-modify-player-age v g) (list-replace g 5 v))
+(define (nightjar-images g) (list-ref g 6))
+(define (nightjar-modify-images v g) (list-replace g 6 v))
+(define (nightjar-image-pos g) (list-ref g 7))
+(define (nightjar-modify-image-pos v g) (list-replace g 7 v))
+(define (nightjar-score g) (list-ref g 8))
+(define (nightjar-modify-score v g) (list-replace g 8 v))
+(define (nightjar-sprite g) (list-ref g 9))
+(define (nightjar-modify-sprite v g) (list-replace g 9 v))
 
 (define (nightjar-heading ctx txt)
   (set! ctx.fillStyle "#000")
@@ -187,6 +189,39 @@
   (set! ctx.font "bold 50pt gnuolane")
   (wrap-text ctx txt 100 100 1000 75))
 
+(define (time-left c)
+  (* (- (game-time c)
+        (nightjar-start-time (game-data c)))
+     0.001))
+
+(define (stroke-clock ctx c x y)
+  (ctx.beginPath)
+  (ctx.moveTo x y)
+  (ctx.arc
+   x y 50 (* Math.PI -0.5)
+   (+ (* Math.PI -0.5)
+      (/ (* (time-left c) Math.PI 2) game-time-allowed))
+   true)
+  (ctx.closePath))
+
+(define (nightjar-draw-clock ctx c)
+  (set! ctx.lineWidth 4)
+  (set! ctx.strokeStyle "#000")
+  (stroke-clock ctx c 54 54)
+  (ctx.stroke)
+
+  (stroke-clock ctx c 50 50)
+  (set! ctx.fillStyle "rgba(1, 0, 0, 0.7)")
+  (ctx.fill)
+  (set! ctx.lineWidth 4)
+  (set! ctx.strokeStyle "#f00")
+  (ctx.stroke)
+
+  (set! ctx.lineWidth 1)
+  (set! ctx.fillStyle "#fff")
+  (set! ctx.font "normal 30pt gnuolane")
+  (ctx.fillText (Math.floor (- game-time-allowed (time-left c))) 34 90))
+
 (define (nightjar-new-game c)
   (nightjar-game
    (game-modify-data
@@ -199,16 +234,23 @@
         (generate-image-pos) d))
      c))))
 
+(define (nightjar-new-game-reset-timer c)
+  (game-modify-data
+   (lambda (d)
+     (nightjar-modify-photo-time
+      (game-time c) d))
+   (nightjar-new-game c)))
+
 (define (nightjar-new-game-images c)
   (define start 0)
   (when (eq? (nightjar-player-type (game-data c)) "monkey")
         (set! start 40))
   (play-sound "sound/button.wav")
-  (nightjar-new-game
+  (nightjar-new-game-reset-timer
    (game-modify-data
     (lambda (d)
       (nightjar-modify-images
-       (slice nightjar-examples start 39)
+       (crop (shuffle (slice nightjar-examples start 39)) 20)
        d))
     c)))
 
@@ -417,7 +459,7 @@
     (list "photo_name" (nightjar-example-file (car (nightjar-images (game-data c)))))
     (list "photo_offset_x" (car (nightjar-image-pos (game-data c))))
     (list "photo_offset_y" (cadr (nightjar-image-pos (game-data c))))
-    (list "time_stamp" (- (game-time c) (nightjar-start-time (game-data c))))
+    (list "time_stamp" (- (game-time c) (nightjar-photo-time (game-data c))))
     (list "x_position" (game-mx c))
     (list "y_position" (game-my c))
     (list "success" success))))
@@ -439,47 +481,7 @@
       (game-time c)
       (nightjar-sprite (game-data c)))
 
-     (ctx.beginPath)
-     (ctx.moveTo 54 54)
-     (ctx.arc
-      54 54 50 (* Math.PI -0.5)
-      (+ (* Math.PI -0.5)
-         (/ (* (- (game-time c)
-                  (nightjar-start-time (game-data c)))
-               0.001 Math.PI 2) game-time-allowed))
-      true)
-     (ctx.closePath)
-     (set! ctx.lineWidth 4)
-     (set! ctx.strokeStyle "#000")
-     (ctx.stroke)
-
-
-     (ctx.beginPath)
-     (ctx.moveTo 50 50)
-     (ctx.arc
-      50 50 50 (* Math.PI -0.5)
-      (+ (* Math.PI -0.5)
-         (/ (* (- (game-time c)
-                  (nightjar-start-time (game-data c)))
-               0.001 Math.PI 2) game-time-allowed))
-      true)
-     (ctx.closePath)
-     (set! ctx.fillStyle "rgba(1, 0, 0, 0.7)")
-     (ctx.fill)
-     (set! ctx.lineWidth 4)
-     (set! ctx.strokeStyle "#f00")
-     (ctx.stroke)
-
-     (set! ctx.lineWidth 1)
-
-     (set! ctx.fillStyle "#fff")
-     (set! ctx.font "normal 30pt gnuolane")
-
-     (ctx.fillText (Math.floor (- game-time-allowed
-                                        (* (- (game-time c)
-                                              (nightjar-start-time (game-data c)))
-                                           0.001)))
-                   34 90)
+     (nightjar-draw-clock ctx c)
 
      )
 
@@ -594,7 +596,7 @@
          ;; check end of game
          (if (eq? (length (nightjar-images (game-data c))) 1)
              (nightjar-intro c)
-             (nightjar-new-game
+             (nightjar-new-game-reset-timer
               (game-modify-data
                (lambda (d)
                  (nightjar-modify-images
@@ -651,7 +653,7 @@
          ;; check end of game
          (if (eq? (length (nightjar-images (game-data c))) 1)
              (nightjar-intro c)
-             (nightjar-new-game
+             (nightjar-new-game-reset-timer
               (game-modify-data
                (lambda (d)
                  (nightjar-modify-images

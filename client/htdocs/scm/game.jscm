@@ -671,7 +671,10 @@
      (console.log "returned something")
      (let ((score (JSON.parse data)))
        (console.log score)
-       (nightjar-finish game (car score) (cadr score)))))
+       (nightjar-finish game
+                        (list-ref score 0)
+                        (list-ref score 1)
+                        (list-ref score 2)))))
   c)
 
 (define (score-to-text score)
@@ -681,21 +684,21 @@
    ((eq? score 3) "3rd")
    (else (+ score "th"))))
 
-(define (get-score-text score)
-  (if (< score 11)
+(define (get-score-text score count)
+  (if (and (< score 11) (> count 5))
       (+ " You are in the top ten! You are " (score-to-text score))
       ""))
 
 (define (trunc a)
   (/ (Math.floor (* a 100)) 100))
 
-(define (nightjar-finish c av score)
+(define (nightjar-finish c av score count)
   (game-modify-render
    (lambda (ctx)
 
      (nightjar-all-text
       ctx (+ "Your average nightjar spotting time is " (trunc (/ av 1000)) " seconds."
-             (get-score-text score))))
+             (get-score-text score count))))
 
    (game-modify-update
     (lambda (t c) c)

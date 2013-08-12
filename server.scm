@@ -94,8 +94,12 @@
    (register
     (req 'score '(player_id))
     (lambda (player-id)
-      (let ((av (get-player-average db (string->number player-id))))
-        (pluto-response (scheme->json (list av (get-player-rank db av)))))))))
+      (let ((av (get-player-average db (string->number player-id)))
+            (c (get-player-count db (string->number player-id))))
+        (pluto-response
+         (scheme->json (list av
+                             (get-player-rank db av)
+                             (if (not c) 0 c)))))))))
 
 (define (start request)
   (let ((values (url-query (request-uri request))))

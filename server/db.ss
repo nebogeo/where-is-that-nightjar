@@ -36,16 +36,27 @@
        (not (false? av)))
      (map
       (lambda (player)
-        (get-player-average db (vector-ref player 0)))
+        (get-player-average-min db (vector-ref player 0)))
       players))))
 
 (define (get-player-average db player-id)
   (vector-ref
    (cadr
     (select db (string-append
-                "SELECT avg(time_stamp) from click where success = 1 and player_id = "
+                "SELECT avg(time_stamp), count(time_stamp) from click where success = 1 and player_id = "
                 (number->string player-id)))) 0))
 
+(define (get-player-average-min db player-id)
+  (let ((v (cadr (select db (string-append
+                             "SELECT avg(time_stamp), count(time_stamp) from click where success = 1 and player_id = "
+                             (number->string player-id))))))
+    (if (> (vector-ref v 1) 5) (vector-ref v 0) #f)))
+
+(define (get-player-count db player-id)
+  (let ((v (cadr (select db (string-append
+                             "SELECT count(time_stamp) from click where success = 1 and player_id = "
+                             (number->string player-id))))))
+    (vector-ref v 0)))
 
 (define (get-position v ol)
   (define (_ n l)

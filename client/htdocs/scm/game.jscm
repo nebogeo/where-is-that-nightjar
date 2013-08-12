@@ -254,7 +254,6 @@
        d))
     c)))
 
-
 (define (nightjar-intro c)
   (game-modify-data
    (lambda (d)
@@ -411,9 +410,10 @@
 
 
 (define (get-n-items lst num)
-  (if (> num 0)
-      (cons (car lst) (get-n-items (cdr lst) (- num 1)))
-      ()))
+  (cond
+   ((null? lst) ())
+   ((zero? num) ())
+   (else (cons (car lst) (get-n-items (cdr lst) (- num 1))))))
 
 (define (slice lst start count)
   (if (> start 1)
@@ -468,6 +468,7 @@
 (define (nightjar-game c)
   ;; todo: choose and delete
 
+  (console.log (nightjar-images (game-data c)))
   (define example (car (nightjar-images (game-data c))))
 
   (game-modify-render
@@ -632,9 +633,10 @@
       (game-time c)
       (nightjar-sprite (game-data c)))
 
-     (nightjar-heading ctx (+ "Nightjar found in "
-                              (/ (nightjar-score (game-data c)) 1000)
-                              " seconds")))
+     (let ((done (+ (- 20 (length (nightjar-images (game-data c)))) 1)))
+       (nightjar-heading ctx (+ "Nightjar " done "/20 found in "
+                                (/ (nightjar-score (game-data c)) 1000)
+                                " seconds"))))
 
    (game-modify-update
     (lambda (t c) c)
@@ -649,10 +651,11 @@
        (lambda (c)
          (play-sound "sound/button.wav")
          (console.log "doing next nightjar")
+         (console.log (length (nightjar-images (game-data c))))
 
          ;; check end of game
          (if (eq? (length (nightjar-images (game-data c))) 1)
-             (nightjar-get-score)
+             (nightjar-get-score c)
              (nightjar-new-game-reset-timer
               (game-modify-data
                (lambda (d)

@@ -35,8 +35,7 @@
 
 (define db-name "nightjars.db")
 (define db (open (string->path db-name)))
-
-(display (sort (get-player-averages db) <))(newline)
+(open-log "log.txt")
 
 ;;(setup db)
 
@@ -90,7 +89,13 @@
                   x_position
                   y_position
                   success)))
-        (pluto-response (scheme->json '())))))))
+        (pluto-response (scheme->json '())))))
+
+   (register
+    (req 'score '(player_id))
+    (lambda (player-id)
+      (let ((av (get-player-average db (string->number player-id))))
+        (pluto-response (scheme->json (list av (get-player-rank db av)))))))))
 
 (define (start request)
   (let ((values (url-query (request-uri request))))

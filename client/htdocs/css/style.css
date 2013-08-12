@@ -13,6 +13,7 @@ html, body {
     color: #fff;
     font-size:  20;
     background: #000;
+    //cursor: url(/images/mouse.png), default;
 }
 
 #canvas {

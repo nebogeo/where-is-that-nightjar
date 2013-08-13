@@ -395,8 +395,12 @@
 
 (console.log canvas)
 
-(define screen-width 1024)
-(define screen-height 768)
+;(define screen-width 1024)
+;(define screen-height 768)
+(define screen-width (* 1024 1.3))
+(define screen-height (* 768 1.3))
+
+
 (define load-time (js "new Date()"))
 
 (set! ctx.fillStyle "#fff")

@@ -174,20 +174,20 @@
   (set! ctx.font "normal 75pt stefanie")
   (ctx.save)
   (ctx.translate 4 4)
-  (wrap-text ctx txt 100 100 1000 100)
+  (wrap-text ctx txt 100 200 1000 100)
   (ctx.restore)
   (set! ctx.fillStyle "#fff")
   (set! ctx.font "normal 75pt stefanie")
-  (wrap-text ctx txt 100 100 1000 100))
+  (wrap-text ctx txt 100 200 1000 100))
 
 
 (define (nightjar-text ctx txt)
   (set! ctx.font "bold 25pt gnuolane")
-  (wrap-text ctx txt 100 300 1000 50))
+  (wrap-text ctx txt 100 400 1000 50))
 
 (define (nightjar-all-text ctx txt)
   (set! ctx.font "bold 50pt gnuolane")
-  (wrap-text ctx txt 100 100 1000 75))
+  (wrap-text ctx txt 100 200 1000 75))
 
 (define (time-left c)
   (* (- (game-time c)
@@ -207,10 +207,10 @@
 (define (nightjar-draw-clock ctx c)
   (set! ctx.lineWidth 4)
   (set! ctx.strokeStyle "#000")
-  (stroke-clock ctx c 54 54)
+  (stroke-clock ctx c 74 74)
   (ctx.stroke)
 
-  (stroke-clock ctx c 50 50)
+  (stroke-clock ctx c 70 70)
   (set! ctx.fillStyle "rgba(1, 0, 0, 0.7)")
   (ctx.fill)
   (set! ctx.lineWidth 4)
@@ -220,7 +220,7 @@
   (set! ctx.lineWidth 1)
   (set! ctx.fillStyle "#fff")
   (set! ctx.font "normal 30pt gnuolane")
-  (ctx.fillText (Math.floor (- game-time-allowed (time-left c))) 34 90))
+  (ctx.fillText (Math.floor (- game-time-allowed (time-left c))) 54 110))
 
 (define (nightjar-new-game c)
   (nightjar-game
@@ -231,7 +231,10 @@
     (game-modify-data
      (lambda (d)
        (nightjar-modify-image-pos
-        (generate-image-pos) d))
+        (generate-image-pos)
+        (nightjar-modify-sprite
+         (sprite -999 -999 "right.png" 0)
+         d)))
      c))))
 
 (define (nightjar-new-game-reset-timer c)
@@ -309,11 +312,11 @@
      (nightjar-all-text ctx "What is your age?"))
    (game-modify-buttons
     (let ((age-but
-           (lambda (title id y)
+           (lambda (title id)
              (image-button
               title
               default-button-x
-              (+ default-button-y y)
+              (+ 150 (* id 130))
               #t
               (feather)
               (lambda (c)
@@ -325,11 +328,11 @@
                  (nightjar-played-before-screen c)))))))
 
       (list
-       (age-but "Younger than 10" 1 -250)
-       (age-but "10 to 15" 2 -150)
-       (age-but "16 to 35" 3 -50)
-       (age-but "36 to 50" 4 50)
-       (age-but "Older than 50" 5 150))
+       (age-but "Younger than 10" 1)
+       (age-but "10 to 15" 2)
+       (age-but "16 to 35" 3)
+       (age-but "36 to 50" 4)
+       (age-but "Older than 50" 5))
      )
     c)))
 

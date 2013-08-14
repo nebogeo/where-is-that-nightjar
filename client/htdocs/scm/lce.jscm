@@ -7,8 +7,8 @@
     cache: false
 })")
 
- (define (server-call name argsl)
-   ;; hack together a js object to send
+(define (server-call name argsl)
+  ;; hack together a js object to send
    (define args
     (foldl
      (lambda (i r)
@@ -219,23 +219,24 @@
     (circle-button-update! b mx my c))))
 
 (define (rect-button-render! ctx t b)
-  (ctx.save)
-  (ctx.translate (button-x b) (button-y b))
-  (when (button-jitter b)
-        (ctx.translate (/ (button-w b) 2)
-                       (/ (button-h b) 2))
-        (ctx.rotate (* 0.2 (- (rndf) 0.5)))
-        (ctx.scale (+ 1 (* 0.2 (- (rndf) 0.5)))
-                   (+ 1 (* 0.2 (- (rndf) 0.5))))
-        (ctx.translate (- 0 (/ (button-w b) 2))
+  (when #f
+        (ctx.save)
+        (ctx.translate (button-x b) (button-y b))
+        (when (button-jitter b)
+              (ctx.translate (/ (button-w b) 2)
+                             (/ (button-h b) 2))
+              (ctx.rotate (* 0.2 (- (rndf) 0.5)))
+              (ctx.scale (+ 1 (* 0.2 (- (rndf) 0.5)))
+                         (+ 1 (* 0.2 (- (rndf) 0.5))))
+              (ctx.translate (- 0 (/ (button-w b) 2))
                        (- 0 (/ (button-h b) 2))))
-
-  (set! ctx.strokeStyle "#fff")
-  (ctx.strokeRect
-   0 0 (button-w b) (button-h b))
-  (ctx.fillText (button-name b) (/ (button-w b) 2) (+ 20 (/ (button-h b) 2)))
-  (ctx.restore)
-  0)
+        
+        (set! ctx.strokeStyle "#fff")
+        (ctx.strokeRect
+         0 0 (button-w b) (button-h b))
+        (ctx.fillText (button-name b) (/ (button-w b) 2) (+ 20 (/ (button-h b) 2)))
+        (ctx.restore)
+        ))
 
 (define (image-button-render! ctx t b)
   (ctx.save)

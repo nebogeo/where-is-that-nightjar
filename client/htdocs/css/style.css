@@ -13,11 +13,11 @@ html, body {
     color: #fff;
     font-size:  20;
     background: #000;
-    //cursor: url(/images/mouse.png), default;
+    cursor: url(/images/mouse.png), default;
 }
 
 #canvas {
-    width: auto;
-    height: 98%;
+    width: 100%;
+    height: auto;
     background: url(/images/bg.png);
 }

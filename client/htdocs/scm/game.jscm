@@ -281,14 +281,17 @@
 (define (nightjar-experiment-screen c)
   (game-modify-render
    (lambda (ctx)
-     (nightjar-all-text ctx "We would like to store some data from your game, is that ok?"))
+     (nightjar-all-text ctx "We would like to use results from your game for a scientific publication, is that ok?")
+     (set! ctx.font "bold 30pt gnuolane")
+     (wrap-text ctx "We are using age and timing information" 100 450 1000 75))
+
    (game-modify-buttons
     (list
 
      (image-button
       "Yes that's fine"
       (+ default-button-x button-gap)
-      default-button-y
+      (+ default-button-y 100)
       #t
       (feather)
       (lambda (c)
@@ -296,9 +299,9 @@
         (nightjar-age-screen c)))
 
      (image-button
-      "No thanks"
+      "Back"
       (- default-button-x button-gap)
-      default-button-y
+      (+ default-button-y 100)
       #t
       (feather)
       (lambda (c)
@@ -378,7 +381,10 @@
 (define (nightjar-species-screen c)
   (game-modify-render
    (lambda (ctx)
-     (nightjar-all-text ctx "What species would you like to be?"))
+     (nightjar-all-text ctx "What predator species would you like to be?")
+     (set! ctx.font "bold 30pt gnuolane")
+     (wrap-text ctx "They see the world differently..." 100 400 1000 75))
+
    (game-modify-buttons
     (list
 
@@ -426,7 +432,7 @@
 (define (nightjar-explain-screen c)
   (game-modify-render
    (lambda (ctx)
-     (nightjar-all-text ctx "There is one nightjar hidden in every photo, touch it when you can see it"))
+     (nightjar-all-text ctx "There is one nightjar hidden in every photo, touch it as soon as you see it"))
    (game-modify-buttons
     (list
 
@@ -494,7 +500,7 @@
       (if (> (- (game-time c)
                 (nightjar-start-time (game-data c)))
              (* game-time-allowed 1000))
-          (nightjar-fail "You ran out of time" c)
+          (nightjar-fail "You'll go hungry tonight!" c)
           c))
 
     (game-modify-buttons
@@ -507,7 +513,7 @@
        #f
        "quit.png"
        (lambda (c)
-         (nightjar-fail "" c)))
+         (nightjar-fail "You'll go hungry tonight!" c)))
 
       ;; button over nightjar
       (rect-button
@@ -563,34 +569,36 @@
       (car (nightjar-image-pos (game-data c)))
       (cadr (nightjar-image-pos (game-data c))))
 
+     ;; highlight the nightjar
+     (set! ctx.strokeStyle "#ffff00")
+     (set! ctx.lineWidth 4)
+     (ctx.strokeRect
+       (+ (car (nightjar-example-pos example))
+          (car (nightjar-image-pos (game-data c))))
+
+       (+ (cadr (nightjar-example-pos example))
+          (cadr (nightjar-image-pos (game-data c))))
+
+       (nightjar-example-width example)
+       (nightjar-example-height example))
+     (set! ctx.lineWidth 1)
+
      (sprite-render
       ctx
       (game-time c)
       (nightjar-sprite (game-data c)))
 
-     (nightjar-heading ctx reason))
+     (nightjar-all-text ctx reason))
 
    (game-modify-update
     (lambda (t c) c)
 
     (game-modify-buttons
      (list
-      (image-button
-       "Try again"
-       (- default-button-x button-gap)
-       (+ default-button-y 50) #t
-       (feather)
-       (lambda (c)
-         (play-sound "sound/button.wav")
-         (game-modify-data
-          (lambda (d)
-            (nightjar-modify-start-time
-             (game-time c) d))
-          (nightjar-game c))))
 
       (image-button
-       "Skip this one"
-       (+ default-button-x button-gap)
+       "Next nightjar"
+       (- default-button-x button-gap)
        (+ default-button-y 50) #t
        (feather)
        (lambda (c)
@@ -609,14 +617,15 @@
 
       (image-button
        "Quit game"
-       default-button-x
-       (+ default-button-y 150) #t
+       (+ default-button-x button-gap)
+       (+ default-button-y 50) #t
        (feather)
        (lambda (c)
          (play-sound "sound/button.wav")
 
          ;; check end of game
-         (nightjar-get-score c)))
+         (nightjar-get-score c "Thankyou for playing.")))
+
 
 
       ) c))))
@@ -658,7 +667,7 @@
 
          ;; check end of game
          (if (eq? (length (nightjar-images (game-data c))) 1)
-             (nightjar-get-score c)
+             (nightjar-get-score c "Well done!")
              (nightjar-new-game-reset-timer
               (game-modify-data
                (lambda (d)
@@ -668,19 +677,19 @@
       ) c))))
 
 
-(define (nightjar-get-score c)
+(define (nightjar-get-score c reason)
   (server-call-mutate
    "score"
    (list
     (list "player_id" (nightjar-player-id (game-data c))))
    (lambda (game data)
-     (console.log "returned something")
      (let ((score (JSON.parse data)))
        (console.log score)
        (nightjar-finish game
                         (list-ref score 0)
                         (list-ref score 1)
-                        (list-ref score 2)))))
+                        (list-ref score 2)
+                        reason))))
   c)
 
 (define (score-to-text score)
@@ -693,18 +702,20 @@
 (define (get-score-text score count)
   (if (and (< score 11) (> count 5))
       (+ " You are in the top ten! You are " (score-to-text score))
-      ""))
+      " You've not made the top ten..."))
 
 (define (trunc a)
   (/ (Math.floor (* a 100)) 100))
 
-(define (nightjar-finish c av score count)
+(define (nightjar-finish c av score count reason)
   (game-modify-render
    (lambda (ctx)
 
      (nightjar-all-text
-      ctx (+ "Your average nightjar spotting time is " (trunc (/ av 1000)) " seconds."
-             (get-score-text score count))))
+      ctx (+ reason " Your average nightjar spotting time is " (trunc (/ av 1000)) " seconds."))
+
+     (wrap-text ctx (get-score-text score count) 100 430 1000 75)
+     (wrap-text ctx "For more information head to nightjar.exeter.ac.uk" 100 570 1000 75))
 
    (game-modify-update
     (lambda (t c) c)
@@ -715,7 +726,7 @@
       (image-button
        "Back"
        default-button-x
-       default-button-y
+       (+ default-button-y 200)
        #t
        (feather)
        (lambda (c)

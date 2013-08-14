@@ -67,6 +67,7 @@
   (_ 1 ol))
 
 (define (get-player-rank db av)
-  (let ((rank (sort (get-player-averages db) <)))
-    (display rank)(newline)
-    (get-position av rank)))
+  (if av
+      (let ((rank (sort (get-player-averages db) <)))
+        (get-position av rank))
+      999))

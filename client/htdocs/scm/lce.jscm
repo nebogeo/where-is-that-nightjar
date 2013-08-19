@@ -73,6 +73,15 @@
 
 (define image-lib ())
 
+(define (load-image-mutate fn filename)
+  (let ((image (js "new Image()")))
+    (set! image.onload
+          (mutate-game
+           (lambda (c)
+             (set! image-lib (cons (list filename image) image-lib))
+             (fn c))))
+    (set! image.src (+ "images/" filename))))
+
 (define (load-image! fn finished images)
   (let ((image (js "new Image()")))
     (set! image.onload
@@ -230,7 +239,7 @@
                          (+ 1 (* 0.2 (- (rndf) 0.5))))
               (ctx.translate (- 0 (/ (button-w b) 2))
                        (- 0 (/ (button-h b) 2))))
-        
+
         (set! ctx.strokeStyle "#fff")
         (ctx.strokeRect
          0 0 (button-w b) (button-h b))
@@ -375,7 +384,6 @@
              (sy (/ rect.height screen-height)))
          (let ((mx (/ (- e.clientX rect.left) sx))
                (my (/ (- e.clientY rect.top) sy)))
-           (console.log sx sy)
            (set! game (game-input game mx my)))))))
 
   (console.log "building game")
@@ -394,8 +402,6 @@
 (define canvas (document.getElementById "canvas"))
 (define ctx (canvas.getContext "2d"))
 
-(console.log canvas)
-
 ;(define screen-width 1024)
 ;(define screen-height 768)
 (define screen-width (* 1024 1.3))
@@ -406,5 +412,3 @@
 
 (set! ctx.fillStyle "#fff")
 (set! ctx.strokeStyle "#000")
-
-(console.log "done stuff")

@@ -237,25 +237,38 @@
          d)))
      c))))
 
-(define (nightjar-new-game-reset-timer c)
-  (game-modify-data
-   (lambda (d)
-     (nightjar-modify-photo-time
-      (game-time c) d))
-   (nightjar-new-game c)))
+(define (nightjar-new-game-reset-timer n c)
+  (load-image-mutate
+   (lambda (c)
+     (nightjar-new-game
+      (game-modify-data
+       (lambda (d)
+         (nightjar-modify-images
+          (cdr (nightjar-images d))
+          (nightjar-modify-photo-time
+           (game-time c) d)))
+       c)))
+   (nightjar-example-file (list-ref (nightjar-images (game-data c)) n)))
+  c)
 
 (define (nightjar-new-game-images c)
   (define start 0)
   (when (eq? (nightjar-player-type (game-data c)) "monkey")
         (set! start 40))
   (play-sound "sound/button.wav")
-  (nightjar-new-game-reset-timer
-   (game-modify-data
-    (lambda (d)
-      (nightjar-modify-images
-       (crop (shuffle (slice nightjar-examples start 39)) 20)
-       d))
-    c)))
+
+  (let ((images (crop (shuffle (slice nightjar-examples start 39)) 20)))
+    (load-image-mutate
+     (lambda (c)
+       (nightjar-new-game
+        (game-modify-data
+         (lambda (d)
+           (nightjar-modify-photo-time
+            (game-time c)
+            (nightjar-modify-images images d)))
+         c)))
+     (nightjar-example-file (list-ref images 0)))
+    c))
 
 (define (nightjar-intro c)
   (game-modify-data
@@ -477,7 +490,6 @@
 (define (nightjar-game c)
   ;; todo: choose and delete
 
-  (console.log (nightjar-images (game-data c)))
   (define example (car (nightjar-images (game-data c))))
 
   (game-modify-render
@@ -529,7 +541,6 @@
        #f
        (lambda (c)
          (play-sound "sound/found.wav")
-         (console.log (nightjar-player-id (game-data c)))
          (nightjar-win
           (game-modify-data
            (lambda (d)
@@ -603,17 +614,10 @@
        (feather)
        (lambda (c)
          (play-sound "sound/button.wav")
-         (console.log "doing next nightjar")
-
          ;; check end of game
          (if (eq? (length (nightjar-images (game-data c))) 1)
              (nightjar-intro c)
-             (nightjar-new-game-reset-timer
-              (game-modify-data
-               (lambda (d)
-                 (nightjar-modify-images
-                 (cdr (nightjar-images d)) d))
-               c)))))
+             (nightjar-new-game-reset-timer 1 c))))
 
       (image-button
        "Quit game"
@@ -622,10 +626,8 @@
        (feather)
        (lambda (c)
          (play-sound "sound/button.wav")
-
          ;; check end of game
          (nightjar-get-score c "Thankyou for playing.")))
-
 
 
       ) c))))
@@ -662,20 +664,11 @@
        (feather)
        (lambda (c)
          (play-sound "sound/button.wav")
-         (console.log "doing next nightjar")
-         (console.log (length (nightjar-images (game-data c))))
-
          ;; check end of game
          (if (eq? (length (nightjar-images (game-data c))) 1)
              (nightjar-get-score c "Well done!")
-             (nightjar-new-game-reset-timer
-              (game-modify-data
-               (lambda (d)
-                 (nightjar-modify-images
-                  (cdr (nightjar-images d)) d))
-               c)))))
+             (nightjar-new-game-reset-timer 1 c))))
       ) c))))
-
 
 (define (nightjar-get-score c reason)
   (server-call-mutate
@@ -684,7 +677,6 @@
     (list "player_id" (nightjar-player-id (game-data c))))
    (lambda (game data)
      (let ((score (JSON.parse data)))
-       (console.log score)
        (nightjar-finish game
                         (list-ref score 0)
                         (list-ref score 1)
@@ -734,23 +726,15 @@
          (nightjar-intro c)))
       ) c))))
 
-
-
-
 (set! ctx.font "normal 75pt gnuolane")
 (centre-text ctx "Loading..." 240)
 
-(set! photos (photos.concat
-              (list "feather1.png"
-                    "feather2.png"
-                    "feather3.png"
-                    "quit.png"
-                    "right.png"
-                    "wrong.png")))
-
-
-
 (load-images!
- photos
+ (list "feather1.png"
+       "feather2.png"
+       "feather3.png"
+       "quit.png"
+       "right.png"
+       "wrong.png")
  (lambda ()
    (start-game canvas ctx)))

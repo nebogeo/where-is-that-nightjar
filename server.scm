@@ -34,10 +34,20 @@
 ;;(define setuid (get-ffi-obj 'setuid #f (_fun _int -> _int)))
 
 (define db-name "nightjars.db")
-(define db (open (string->path db-name)))
+(define db #f)
+
+(if (file-exists? (string->path db-name))
+    (begin
+      (display "open existing db")(newline)
+      (set! db (open (string->path db-name))))
+    (begin
+      (display "makine new db")(newline)
+      (set! db (open (string->path db-name)))
+      (setup db)))
+
 (open-log "log.txt")
 
-;;(setup db)
+
 
 (define (pluto-response txt)
   (response/full

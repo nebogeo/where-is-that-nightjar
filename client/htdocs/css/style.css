@@ -1,11 +1,11 @@
 @font-face {
     font-family: 'stefanie';
-    src: url('/fonts/StefanieDots.ttf');
+    src: url('http://nightjar.exeter.ac.uk/where-is-that-nightjar/fonts/StefanieDots.ttf');
 }
 
 @font-face {
     font-family: 'gnuolane';
-    src: url('/fonts/gnuolane.ttf');
+    src: url('http://nightjar.exeter.ac.uk/where-is-that-nightjar/fonts/gnuolane.ttf');
 }
 
 html, body {
@@ -13,11 +13,11 @@ html, body {
     color: #fff;
     font-size:  20;
     background: #000;
-    cursor: url(/images/mouse.png), default;
+   // cursor: url(images/mouse.png), default;
 }
 
 #canvas {
     width: auto;
     height: 100%;
-    background: url(/images/bg.png);
+    background: url(http://nightjar.exeter.ac.uk/where-is-that-nightjar/images/bg.png);
 }

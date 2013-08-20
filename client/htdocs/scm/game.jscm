@@ -253,7 +253,12 @@
    ()
    (game-modify-render
     (lambda (ctx)
-      (nightjar-text ctx "Loading your next nightjar..."))
+      (let ((example (car (nightjar-images (game-data c)))))
+        (ctx.drawImage
+         (find-image (nightjar-example-file example) image-lib)
+         (car (nightjar-image-pos (game-data c)))
+         (cadr (nightjar-image-pos (game-data c))))
+        (nightjar-all-text ctx "Loading your next nightjar...")))
     c)))
 
 (define (nightjar-new-game-images c)
@@ -277,7 +282,7 @@
      ()
      (game-modify-render
       (lambda (ctx)
-        (nightjar-text ctx "Loading your first nightjar..."))
+        (nightjar-all-text ctx "Loading your first nightjar..."))
         c))))
 
 (define (nightjar-intro c)

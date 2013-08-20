@@ -297,6 +297,14 @@
          (nightjar-experiment-screen c)))
 
       (image-button
+       "Back to site" 10 (- default-button-y 20) #f "back.png"
+       (lambda (c)
+         (play-sound "sound/button.wav")
+         (set! window.location "http://nightjar.exeter.ac.uk/story/games")
+         c))
+
+
+      (image-button
        "" (+ icon-x 50) (+ default-button-y 190) #f "sensory-ecology.png"
        (lambda (c)
          (play-sound "sound/button.wav")
@@ -785,6 +793,7 @@
        "cu.png"
        "exeter.png"
        "foam.png"
-       "sensory-ecology.png")
+       "sensory-ecology.png"
+       "back.png")
  (lambda ()
    (start-game canvas ctx)))

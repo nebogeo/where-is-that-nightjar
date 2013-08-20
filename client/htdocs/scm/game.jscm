@@ -249,7 +249,12 @@
            (game-time c) d)))
        c)))
    (nightjar-example-file (list-ref (nightjar-images (game-data c)) n)))
-  (game-modify-buttons () c))
+  (game-modify-buttons
+   ()
+   (game-modify-render
+    (lambda (ctx)
+      (nightjar-all-text ctx "Loading next nightjar..."))
+    c)))
 
 (define (nightjar-new-game-images c)
   (define start 0)

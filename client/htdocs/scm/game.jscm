@@ -268,7 +268,12 @@
             (nightjar-modify-images images d)))
          c)))
      (nightjar-example-file (list-ref images 0)))
-    (game-modify-buttons () c)))
+    (game-modify-buttons
+     ()
+     (game-modify-render
+      (lambda (ctx)
+        (nightjar-all-text ctx "Loading next nightjar..."))
+        c))))
 
 (define (nightjar-intro c)
   (let ((icon-x 150))

@@ -253,7 +253,7 @@
    ()
    (game-modify-render
     (lambda (ctx)
-      (nightjar-all-text ctx "Loading next nightjar..."))
+      (nightjar-text ctx "Loading your next nightjar..."))
     c)))
 
 (define (nightjar-new-game-images c)
@@ -277,7 +277,7 @@
      ()
      (game-modify-render
       (lambda (ctx)
-        (nightjar-all-text ctx "Loading next nightjar..."))
+        (nightjar-text ctx "Loading your first nightjar..."))
         c))))
 
 (define (nightjar-intro c)

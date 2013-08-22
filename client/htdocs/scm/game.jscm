@@ -515,7 +515,8 @@
   (game-modify-render
    (lambda (ctx)
      (ctx.drawImage (find-image "nightjar.jpg" image-lib) 250 200)
-     (nightjar-all-text ctx "There is one nightjar hidden in every photo, touch it as soon as you see it"))
+     (set! ctx.font "bold 50pt gnuolane")
+     (wrap-text ctx "There is one nightjar hidden in every photo, touch it as soon as you see it" 100 100 1000 75))
    (game-modify-buttons
     (list
 

@@ -286,7 +286,8 @@
         c))))
 
 (define (nightjar-intro c)
-  (let ((icon-x 150))
+  (let ((icon-x 150)
+        (icon-y (+ default-button-y 100)))
   (game-modify-data
    (lambda (d)
      (empty-nightjar-data))
@@ -296,7 +297,7 @@
       (nightjar-text ctx "Hunt nightjars and help us with our research")
       (set! ctx.globalAlpha 0.8)
       (set! ctx.fillStyle "#ffffff")
-      (ctx.fillRect 0 700 1500 100)
+      (ctx.fillRect 0 (+ icon-y 180) 1500 100)
       (set! ctx.globalAlpha 1))
 
     (game-modify-buttons
@@ -312,7 +313,7 @@
          (nightjar-experiment-screen c)))
 
       (image-button
-       "Back to site" 10 (- default-button-y 20) #f "back.png"
+       "Back to site" 10 (- icon-y 20) #f "back.png"
        (lambda (c)
          (play-sound "sound/button.wav")
          (set! window.location "http://nightjar.exeter.ac.uk/story/games")
@@ -320,35 +321,35 @@
 
 
       (image-button
-       "" (+ icon-x 50) (+ default-button-y 190) #f "sensory-ecology.png"
+       "" (+ icon-x 50) (+ icon-y 190) #f "sensory-ecology.png"
        (lambda (c)
          (play-sound "sound/button.wav")
          (set! window.location "http://www.sensoryecology.com/")
          c))
 
       (image-button
-       "" (+ icon-x 200) (+ default-button-y 200) #f "exeter.png"
+       "" (+ icon-x 200) (+ icon-y 200) #f "exeter.png"
        (lambda (c)
          (play-sound "sound/button.wav")
          (set! window.location "http://www.exeter.ac.uk/")
          c))
 
       (image-button
-       "" (+ icon-x 400) (+ default-button-y 200) #f "cu.png"
+       "" (+ icon-x 400) (+ icon-y 200) #f "cu.png"
        (lambda (c)
          (play-sound "sound/button.wav")
          (set! window.location "http://www.zoo.cam.ac.uk/")
          c))
 
       (image-button
-       "" (+ icon-x 600) (+ default-button-y 200) #f "bbsrc.png"
+       "" (+ icon-x 600) (+ icon-y 200) #f "bbsrc.png"
        (lambda (c)
          (play-sound "sound/button.wav")
          (set! window.location "http://www.bbsrc.ac.uk/")
          c))
 
       (image-button
-       "" (+ icon-x 850) (+ default-button-y 205) #f "foam.png"
+       "" (+ icon-x 850) (+ icon-y 205) #f "foam.png"
        (lambda (c)
          (play-sound "sound/button.wav")
          (set! window.location "http://fo.am")
@@ -513,6 +514,7 @@
 (define (nightjar-explain-screen c)
   (game-modify-render
    (lambda (ctx)
+     (ctx.drawImage (find-image "nightjar.jpg" image-lib) 250 200)
      (nightjar-all-text ctx "There is one nightjar hidden in every photo, touch it as soon as you see it"))
    (game-modify-buttons
     (list
@@ -520,7 +522,7 @@
      (image-button
       "Start playing"
       default-button-x
-      default-button-y
+      (+ default-button-y 300)
       #t
       (feather)
       (lambda (c)
@@ -809,6 +811,7 @@
        "exeter.png"
        "foam.png"
        "sensory-ecology.png"
-       "back.png")
+       "back.png"
+       "nightjar.jpg")
  (lambda ()
    (start-game canvas ctx)))

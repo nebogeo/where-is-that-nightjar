@@ -10,14 +10,16 @@
 
 html, body {
     font-family: 'gnuolane';
-    color: #fff;
+    color: #ffffff;
     font-size:  20;
     background: #000;
     // cursor: url(images/mouse.png), default;
+    height: 100%;
+    min-height: 100%;
 }
 
 #canvas {
-    width: auto;
-    height: 100%;
+    width: 60%;
+    min-width: 800px;
     background: url(http://nightjar.exeter.ac.uk/where-is-that-nightjar/images/bg.png);
 }
